@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/suggest",
+      "destination": "https://searchapi.eastmoney.com/api/suggest/get"
+    },
+    {
+      "source": "/api/clist",
+      "destination": "https://push2.eastmoney.com/api/qt/clist/get"
+    },
+    {
+      "source": "/api/kline",
+      "destination": "https://push2his.eastmoney.com/api/qt/stock/kline/get"
+    },
+    {
+      "source": "/api/stock",
+      "destination": "https://push2.eastmoney.com/api/qt/stock/get"
+    }
+  ]
+}
