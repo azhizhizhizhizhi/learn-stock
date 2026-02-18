@@ -1,9 +1,0 @@
-# Cloudflare Pages 配置
-name = "learn-stock"
-compatibility_date = "2024-01-01"
-
-[site]
-bucket = "./dist"
-
-# Pages Functions 配置
-# functions 目录下的文件会自动被识别为 API 端点
