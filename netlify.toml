@@ -1,0 +1,44 @@
+# Netlify 配置文件
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# API 代理重定向规则
+[[redirects]]
+  from = "/api/suggest/*"
+  to = "https://searchapi.eastmoney.com/api/suggest/get:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/clist/*"
+  to = "https://push2.eastmoney.com/api/qt/clist/get:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/kline/*"
+  to = "https://push2his.eastmoney.com/api/qt/stock/kline/get:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/stock/*"
+  to = "https://push2.eastmoney.com/api/qt/stock/get:splat"
+  status = 200
+  force = true
+
+# SPA 路由支持
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# HTTP 头配置
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
