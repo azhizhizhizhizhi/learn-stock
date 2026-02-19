@@ -5,31 +5,33 @@
   publish = "dist"
 
 # API 代理重定向规则
+# 注意：查询参数会自动传递，不需要 :splat
+
 [[redirects]]
-  from = "/api/suggest/*"
-  to = "https://searchapi.eastmoney.com/api/suggest/get:splat"
+  from = "/api/suggest"
+  to = "https://searchapi.eastmoney.com/api/suggest/get"
   status = 200
   force = true
 
 [[redirects]]
-  from = "/api/clist/*"
-  to = "https://push2.eastmoney.com/api/qt/clist/get:splat"
+  from = "/api/clist"
+  to = "https://push2.eastmoney.com/api/qt/clist/get"
   status = 200
   force = true
 
 [[redirects]]
-  from = "/api/kline/*"
-  to = "https://push2his.eastmoney.com/api/qt/stock/kline/get:splat"
+  from = "/api/kline"
+  to = "https://push2his.eastmoney.com/api/qt/stock/kline/get"
   status = 200
   force = true
 
 [[redirects]]
-  from = "/api/stock/*"
-  to = "https://push2.eastmoney.com/api/qt/stock/get:splat"
+  from = "/api/stock"
+  to = "https://push2.eastmoney.com/api/qt/stock/get"
   status = 200
   force = true
 
-# SPA 路由支持
+# SPA 路由支持（放在最后作为fallback）
 [[redirects]]
   from = "/*"
   to = "/index.html"
