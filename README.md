@@ -1,11 +1,18 @@
 # A股压缩图分析工具
 
-一个基于 React + Canvas 的股票可视化分析工具，使用独特的"量价结合图"方式展示股票K线数据，蜡烛的宽度代表成交额大小，高度代表价格区间。
+一个基于 React + Canvas 的股票可视化分析工具，使用独特的"压缩图"方式展示股票K线数据，蜡烛的宽度代表成交额大小，高度代表价格区间。
 
 ![React](https://img.shields.io/badge/React-19-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 ![Vite](https://img.shields.io/badge/Vite-6-purple)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-cyan)
+![Netlify](https://img.shields.io/badge/Netlify-部署成功-brightgreen)
+
+---
+
+## 🎯 在线演示
+
+**🔗 https://stock.azhizhizhi.top**
 
 ---
 
@@ -63,6 +70,7 @@
 | Vite | 6.x | 构建工具 |
 | Tailwind CSS | 4.x | 样式框架 |
 | Canvas API | - | 图表绘制 |
+| Netlify Edge Functions | - | API 代理 |
 
 ---
 
@@ -101,7 +109,7 @@ npm -v
 ### 1. 克隆项目
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/azhizhizhizhizhi/learn-stock.git
 cd learn-stock
 ```
 
@@ -134,54 +142,45 @@ npm run dev
 
 ## 部署指南
 
-### 方式一：静态文件部署（推荐）
+### 方式一：Netlify 部署（推荐，国内可访问）
 
-#### 1. 构建生产版本
+本项目已配置好 Netlify Edge Functions 用于 API 代理，可直接部署。
 
-```bash
-npm run build
-```
+#### 步骤 1：Fork 或 Clone 项目到您的 GitHub
 
-构建完成后，`dist` 目录包含所有静态文件。
+#### 步骤 2：在 Netlify 创建站点
 
-#### 2. 部署到 Nginx
+1. 访问 [Netlify](https://app.netlify.com)
+2. 使用 GitHub 登录
+3. 点击 **Add new site** → **Import an existing project**
+4. 选择 `learn-stock` 仓库
+5. 构建配置（Netlify 会自动检测）：
+   - Build command: `npm run build`
+   - Publish directory: `dist`
+6. 点击 **Deploy site**
 
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    root /path/to/dist;
-    index index.html;
+#### 步骤 3：等待部署完成
 
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
+部署成功后，您将获得一个 `xxx.netlify.app` 的网址。
 
-    # API 代理（如果需要）
-    location /api/ {
-        proxy_pass http://your-api-server/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
-```
+#### 步骤 4：（可选）绑定自定义域名
 
-#### 3. 部署到 Apache
+1. 在 Netlify 站点设置中，点击 **Domain management** → **Add custom domain**
+2. 输入您的域名（如 `stock.example.com`）
+3. Netlify 会提供 CNAME 地址
 
-在 `dist` 目录下创建 `.htaccess` 文件：
+4. 在您的域名 DNS 管理处添加记录：
 
-```apache
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /index.html [L]
-</IfModule>
-```
+| 记录类型 | 主机记录 | 记录值 |
+|---------|---------|--------|
+| CNAME | stock | `您的站点名称.netlify.app` |
 
-### 方式二：Vercel 一键部署
+5. 等待 DNS 生效（通常几分钟到几小时）
+6. Netlify 会自动为自定义域名配置 SSL 证书
+
+---
+
+### 方式二：Vercel 部署
 
 1. 将项目推送到 GitHub
 2. 访问 [Vercel](https://vercel.com)
@@ -189,17 +188,11 @@ server {
 4. 导入 GitHub 仓库
 5. 点击 "Deploy"
 
-### 方式三：Netlify 部署
+> ⚠️ 注意：Vercel 在中国大陆访问可能需要翻墙
 
-1. 将项目推送到 GitHub
-2. 访问 [Netlify](https://netlify.com)
-3. 点击 "New site from Git"
-4. 选择仓库，设置：
-   - Build command: `npm run build`
-   - Publish directory: `dist`
-5. 点击 "Deploy site"
+---
 
-### 方式四：Docker 部署
+### 方式三：Docker 部署
 
 创建 `Dockerfile`：
 
@@ -220,23 +213,7 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-构建并运行：
-
-```bash
-# 构建镜像
-docker build -t stock-chart .
-
-# 运行容器
-docker run -d -p 80:80 stock-chart
-```
-
-### 预览生产构建
-
-本地预览生产版本：
-
-```bash
-npm run preview
-```
+> ⚠️ 注意：Docker 部署需要自行配置 API 代理
 
 ---
 
@@ -310,30 +287,34 @@ npm run preview
 
 ```
 learn-stock/
-├── public/                 # 静态资源
+├── netlify/                    # Netlify 配置
+│   └── edge-functions/
+│       └── api-proxy.ts        # Edge Function API 代理
+├── public/                     # 静态资源
 │   └── vite.svg
-├── scripts/                # 工具脚本
-│   └── fetchStockData.ts   # 获取真实数据脚本
+├── scripts/                    # 工具脚本
+│   └── fetchStockData.ts       # 获取真实数据脚本
 ├── src/
 │   ├── api/
-│   │   └── stockApi.ts     # 东方财富API封装
+│   │   └── stockApi.ts         # 东方财富API封装
 │   ├── assets/
 │   │   └── react.svg
 │   ├── components/
-│   │   ├── SearchBar.tsx   # 股票搜索组件
-│   │   ├── StockChart.tsx  # 压缩图组件（核心）
-│   │   └── StockInfo.tsx   # 股票信息面板
+│   │   ├── SearchBar.tsx       # 股票搜索组件
+│   │   ├── StockChart.tsx      # 压缩图组件（核心）
+│   │   └── StockInfo.tsx       # 股票信息面板
 │   ├── data/
-│   │   ├── mockData.ts     # 模拟数据（8只A股）
-│   │   └── real_600519.ts  # 茅台真实历史数据
+│   │   ├── mockData.ts         # 模拟数据（8只A股）
+│   │   └── real_600519.ts      # 茅台真实历史数据
 │   ├── types/
-│   │   └── stock.ts        # TypeScript 类型定义
-│   ├── App.tsx             # 主应用组件
-│   ├── index.css           # 全局样式
-│   └── main.tsx            # 入口文件
+│   │   └── stock.ts            # TypeScript 类型定义
+│   ├── App.tsx                 # 主应用组件
+│   ├── index.css               # 全局样式
+│   └── main.tsx                # 入口文件
 ├── .gitignore
 ├── eslint.config.js
-├── index.html              # HTML 模板
+├── index.html                  # HTML 模板
+├── netlify.toml                # Netlify 配置文件
 ├── package.json
 ├── postcss.config.js
 ├── README.md
@@ -341,7 +322,7 @@ learn-stock/
 ├── tsconfig.json
 ├── tsconfig.app.json
 ├── tsconfig.node.json
-└── vite.config.ts          # Vite 配置（含API代理）
+└── vite.config.ts              # Vite 配置（开发环境 API 代理）
 ```
 
 ---
@@ -360,28 +341,38 @@ learn-stock/
 
 ### 跨域处理
 
-开发环境通过 Vite 代理解决跨域：
+#### 开发环境
+
+使用 Vite 开发服务器代理：
 
 ```typescript
 // vite.config.ts
-proxy: {
-  '/api': {
-    target: 'https://searchapi.eastmoney.com',
-    changeOrigin: true,
-    secure: false,
+server: {
+  proxy: {
+    '/api/suggest': {
+      target: 'https://searchapi.eastmoney.com',
+      changeOrigin: true,
+      rewrite: (path) => path.replace(/^\/api\/suggest/, '/api/suggest/get'),
+    },
+    // ... 其他代理配置
   }
 }
 ```
 
-### 获取真实数据
+#### 生产环境
 
-运行数据获取脚本：
+使用 Netlify Edge Functions 代理：
 
-```bash
-# 修改 scripts/fetchStockData.ts 中的股票代码
-# 然后运行：
-npx tsx scripts/fetchStockData.ts
+```typescript
+// netlify/edge-functions/api-proxy.ts
+// 自动处理 /api/* 请求，添加正确的请求头
 ```
+
+Edge Functions 的优势：
+- 添加正确的 Referer 和 Origin 请求头
+- 处理 CORS 跨域
+- 支持自定义域名
+- 全球边缘节点加速
 
 ---
 
@@ -410,7 +401,13 @@ npm install
 
 1. 检查网络连接
 2. 东方财富API可能有频率限制
-3. 尝试使用模拟数据进行测试
+3. 确认 Netlify Edge Functions 已正确部署
+
+### Q: 自定义域名无法访问 API？
+
+1. 确认 DNS 已生效（CNAME 记录正确）
+2. 确认 Netlify SSL 证书已颁发（绿色状态）
+3. 等待几分钟让 Edge Functions 生效
 
 ### Q: 如何添加新的股票数据？
 
@@ -455,3 +452,10 @@ export const mockStocks: Stock[] = [
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request！
+
+---
+
+## 致谢
+
+- 数据来源：[东方财富网](https://www.eastmoney.com/)
+- 部署平台：[Netlify](https://www.netlify.com/)
